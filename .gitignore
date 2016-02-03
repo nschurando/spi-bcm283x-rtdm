@@ -1,0 +1,13 @@
+# Ignore Eclipse project files
+.project
+.cproject
+.settings/*
+
+# Ignore build generated files
+build/*
+!build/Makefile
+ksrc/*.o
+ksrc/*.o.cmd
+
+# Ignore release files
+release/*

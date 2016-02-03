@@ -1,0 +1,4 @@
+#ifndef BCM283X_SPI_RTDM_H
+#define BCM283X_SPI_RTDM_H
+
+#endif /* BCM283X_SPI_RTDM_H */
