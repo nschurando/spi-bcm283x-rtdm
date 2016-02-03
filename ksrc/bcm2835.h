@@ -432,8 +432,6 @@
 #ifndef BCM2835_H
 #define BCM2835_H
 
-#include <stdint.h>
-
 #define BCM2835_VERSION 10049 /* Version 1.49 */
 
 /* RPi 2 is ARM v7, and has DMB instruction for memory barriers.

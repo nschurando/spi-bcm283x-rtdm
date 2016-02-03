@@ -9,14 +9,11 @@
 */
 
 
-#include <stdlib.h>
-#include <stdio.h>
-#include <errno.h>
-#include <fcntl.h>
-#include <sys/mman.h>
-#include <string.h>
-#include <time.h>
-#include <unistd.h>
+#include <linux/errno.h>
+#include <linux/fcntl.h>
+#include <linux/mman.h>
+#include <linux/string.h>
+#include <linux/time.h>
 
 #define BCK2835_LIBRARY_BUILD
 #include "bcm2835.h"
