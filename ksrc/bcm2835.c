@@ -19,6 +19,9 @@
 #define BCK2835_LIBRARY_BUILD
 #include "bcm2835.h"
 
+/* Return value of `mmap' in case of an error, as a replacement of the one provided by mman.h  */
+#define MAP_FAILED	((void *) -1)
+
 /* Uncommenting this define compiles alternative I2C code for the version 1 RPi
 // The P1 header I2C pins are connected to SDA0 and SCL0 on V1.
 // By default I2C code is generated for the V2 RPi which has SDA1 and SCL1 connected.
