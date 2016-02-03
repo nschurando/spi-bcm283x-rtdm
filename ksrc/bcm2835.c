@@ -14,6 +14,7 @@
 #include <linux/mman.h>
 #include <linux/string.h>
 #include <linux/time.h>
+#include <linux/printk.h>
 
 #define BCK2835_LIBRARY_BUILD
 #include "bcm2835.h"
@@ -103,7 +104,7 @@ uint32_t bcm2835_peri_read(volatile uint32_t* paddr)
     uint32_t ret;
     if (debug)
     {
-        printf("bcm2835_peri_read  paddr %08X\n", (unsigned) paddr);
+        printk("bcm2835_peri_read  paddr %08X\n", (unsigned) paddr);
 	return 0;
     }
     else
@@ -125,7 +126,7 @@ uint32_t bcm2835_peri_read_nb(volatile uint32_t* paddr)
 {
     if (debug)
     {
-	printf("bcm2835_peri_read_nb  paddr %08X\n", (unsigned) paddr);
+	printk("bcm2835_peri_read_nb  paddr %08X\n", (unsigned) paddr);
 	return 0;
     }
     else
@@ -141,7 +142,7 @@ void bcm2835_peri_write(volatile uint32_t* paddr, uint32_t value)
 {
     if (debug)
     {
-	printf("bcm2835_peri_write paddr %08X, value %08X\n", (unsigned) paddr, value);
+	printk("bcm2835_peri_write paddr %08X, value %08X\n", (unsigned) paddr, value);
     }
     else
     {
@@ -156,7 +157,7 @@ void bcm2835_peri_write_nb(volatile uint32_t* paddr, uint32_t value)
 {
     if (debug)
     {
-	printf("bcm2835_peri_write_nb paddr %08X, value %08X\n",
+	printk("bcm2835_peri_write_nb paddr %08X, value %08X\n",
                (unsigned) paddr, value);
     }
     else
@@ -430,7 +431,7 @@ void bcm2835_delayMicroseconds(uint64_t micros)
     if (debug)
     {
 	/* Cant access sytem timers in debug mode */
-	printf("bcm2835_delayMicroseconds %lld\n", micros);
+	printk("bcm2835_delayMicroseconds %lld\n", micros);
 	return;
     }
 
@@ -1241,7 +1242,7 @@ static void *mapmem(const char *msg, size_t size, int fd, off_t off)
 {
     void *map = mmap(NULL, size, (PROT_READ | PROT_WRITE), MAP_SHARED, fd, off);
     if (map == MAP_FAILED)
-	fprintf(stderr, "bcm2835_init: %s mmap failed: %s\n", msg, strerror(errno));
+	printk(KERN_ERR "bcm2835_init: %s mmap failed: %s\n", msg, strerror(errno));
     return map;
 }
 
@@ -1296,7 +1297,7 @@ int bcm2835_init(void)
     /* Open the master /dev/memory device */
     if ((memfd = open("/dev/mem", O_RDWR | O_SYNC) ) < 0) 
     {
-	fprintf(stderr, "bcm2835_init: Unable to open /dev/mem: %s\n",
+	printk(KERN_ERR "bcm2835_init: Unable to open /dev/mem: %s\n",
 		strerror(errno)) ;
 	goto exit;
     }
