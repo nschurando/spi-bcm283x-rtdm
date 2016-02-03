@@ -1255,7 +1255,6 @@ static void unmapmem(void **pmem, size_t size)
 /* Initialise this library. */
 int bcm2835_init(void)
 {
-    int  memfd;
     int  ok;
     FILE *fp;
 
@@ -1290,17 +1289,6 @@ int bcm2835_init(void)
     }
     /* else we are prob on RPi 1 with BCM2835, and use the hardwired defaults */
 
-    /* Now get ready to map the peripherals block */
-    memfd = -1;
-    ok = 0;
-    /* Open the master /dev/memory device */
-    if ((memfd = open("/dev/mem", O_RDWR | O_SYNC) ) < 0) 
-    {
-	printk(KERN_ERR "bcm2835_init: Unable to open /dev/mem: %s\n",
-		strerror(errno)) ;
-	goto exit;
-    }
-	
     /* Base of the peripherals block is mapped to VM */
     bcm2835_peripherals = mapmem("gpio", bcm2835_peripherals_size, (uint32_t)bcm2835_peripherals_base);
     if (bcm2835_peripherals == MAP_FAILED) goto exit;
@@ -1321,8 +1309,6 @@ int bcm2835_init(void)
     ok = 1;
 
 exit:
-    if (memfd >= 0)
-        close(memfd);
 
     if (!ok)
 	bcm2835_close();
