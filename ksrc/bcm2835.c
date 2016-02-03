@@ -18,13 +18,6 @@
 #define BCK2835_LIBRARY_BUILD
 #include "bcm2835.h"
 
-/* This define enables a little test program (by default a blinking output on pin RPI_GPIO_PIN_11)
-// You can do some safe, non-destructive testing on any platform with:
-// gcc bcm2835.c -D BCM2835_TEST
-// ./a.out
-*/
-/*#define BCM2835_TEST*/
-
 /* Uncommenting this define compiles alternative I2C code for the version 1 RPi
 // The P1 header I2C pins are connected to SDA0 and SCL0 on V1.
 // By default I2C code is generated for the V2 RPi which has SDA1 and SCL1 connected.
@@ -1353,88 +1346,4 @@ int bcm2835_close(void)
     bcm2835_bsc1 = MAP_FAILED;
     bcm2835_st   = MAP_FAILED;
     return 1; /* Success */
-}    
-
-#ifdef BCM2835_TEST
-/* this is a simple test program that prints out what it will do rather than 
-// actually doing it
-*/
-int main(int argc, char **argv)
-{
-    /* Be non-destructive */
-    bcm2835_set_debug(1);
-
-    if (!bcm2835_init())
-	return 1;
-
-    /* Configure some GPIO pins fo some testing
-    // Set RPI pin P1-11 to be an output
-    */
-    bcm2835_gpio_fsel(RPI_GPIO_P1_11, BCM2835_GPIO_FSEL_OUTP);
-    /* Set RPI pin P1-15 to be an input */
-    bcm2835_gpio_fsel(RPI_GPIO_P1_15, BCM2835_GPIO_FSEL_INPT);
-    /*  with a pullup */
-    bcm2835_gpio_set_pud(RPI_GPIO_P1_15, BCM2835_GPIO_PUD_UP);
-    /* And a low detect enable */
-    bcm2835_gpio_len(RPI_GPIO_P1_15);
-    /* and input hysteresis disabled on GPIOs 0 to 27 */
-    bcm2835_gpio_set_pad(BCM2835_PAD_GROUP_GPIO_0_27, BCM2835_PAD_SLEW_RATE_UNLIMITED|BCM2835_PAD_DRIVE_8mA);
-
-#if 1
-    /* Blink */
-    while (1)
-    {
-	/* Turn it on */
-	bcm2835_gpio_write(RPI_GPIO_P1_11, HIGH);
-	
-	/* wait a bit */
-	bcm2835_delay(500);
-	
-	/* turn it off */
-	bcm2835_gpio_write(RPI_GPIO_P1_11, LOW);
-	
-	/* wait a bit */
-	bcm2835_delay(500);
-    }
-#endif
-
-#if 0
-    /* Read input */
-    while (1)
-    {
-	/* Read some data */
-	uint8_t value = bcm2835_gpio_lev(RPI_GPIO_P1_15);
-	printf("read from pin 15: %d\n", value);
-	
-	/* wait a bit */
-	bcm2835_delay(500);
-    }
-#endif
-
-#if 0
-    /* Look for a low event detection
-    // eds will be set whenever pin 15 goes low
-    */
-    while (1)
-    {
-	if (bcm2835_gpio_eds(RPI_GPIO_P1_15))
-	{
-	    /* Now clear the eds flag by setting it to 1 */
-	    bcm2835_gpio_set_eds(RPI_GPIO_P1_15);
-	    printf("low event detect for pin 15\n");
-	}
-
-	/* wait a bit */
-	bcm2835_delay(500);
-    }
-#endif
-
-    if (!bcm2835_close())
-	return 1;
-
-    return 0;
 }
-#endif
-
-
-
