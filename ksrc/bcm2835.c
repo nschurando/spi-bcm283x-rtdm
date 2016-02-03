@@ -9,6 +9,7 @@
 */
 
 
+#include <asm/io.h>
 #include <linux/errno.h>
 #include <linux/fcntl.h>
 #include <linux/mman.h>
@@ -1233,19 +1234,22 @@ void bcm2835_pwm_set_data(uint8_t channel, uint32_t data)
 // Return mapped address on success, MAP_FAILED otherwise.
 // On error print message.
 */
-static void *mapmem(const char *msg, size_t size, int fd, off_t off)
+static void *mapmem(const char *msg, size_t size, off_t off)
 {
-    void *map = mmap(NULL, size, (PROT_READ | PROT_WRITE), MAP_SHARED, fd, off);
-    if (map == MAP_FAILED)
-	printk(KERN_ERR "bcm2835_init: %s mmap failed: %s\n", msg, strerror(errno));
-    return map;
+	void* map = ioremap(off, size);
+	if (map < 0)
+	printk(KERN_ERR "%s: mapping 0x%08lx for %s failed\n", __FUNCTION__, off, msg);
+	else
+	printk(KERN_DEBUG "%s: mapping 0x%08lx for %s succeded to 0x%p\n", __FUNCTION__, off, msg, map);
+	return map;
 }
 
 static void unmapmem(void **pmem, size_t size)
 {
-    if (*pmem == MAP_FAILED) return;
-    munmap(*pmem, size);
-    *pmem = MAP_FAILED;
+	if (*pmem == MAP_FAILED) return;
+	printk(KERN_DEBUG "%s: unmapping 0x%p\n", __FUNCTION__, *pmem);
+	iounmap(*pmem);
+	*pmem = MAP_FAILED;
 }
 
 /* Initialise this library. */
@@ -1298,7 +1302,7 @@ int bcm2835_init(void)
     }
 	
     /* Base of the peripherals block is mapped to VM */
-    bcm2835_peripherals = mapmem("gpio", bcm2835_peripherals_size, memfd, (uint32_t)bcm2835_peripherals_base);
+    bcm2835_peripherals = mapmem("gpio", bcm2835_peripherals_size, (uint32_t)bcm2835_peripherals_base);
     if (bcm2835_peripherals == MAP_FAILED) goto exit;
 
     /* Now compute the base addresses of various peripherals, 
