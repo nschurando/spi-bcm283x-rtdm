@@ -423,7 +423,7 @@ void bcm2835_delay(unsigned int millis)
     
     sleeper.tv_sec  = (time_t)(millis / 1000);
     sleeper.tv_nsec = (long)(millis % 1000) * 1000000;
-    nanosleep(&sleeper, NULL);
+    //nanosleep(&sleeper, NULL);
 }
 
 /* microseconds */
@@ -448,7 +448,7 @@ void bcm2835_delayMicroseconds(uint64_t micros)
     {
 	t1.tv_sec = 0;
 	t1.tv_nsec = 1000 * (long)(micros - 200);
-	nanosleep(&t1, NULL);
+	//nanosleep(&t1, NULL);
     }    
   
     bcm2835_st_delay(start, micros);
