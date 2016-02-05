@@ -731,7 +731,7 @@ void bcm2835_i2c_begin(void)
     // 1000000 = micros seconds in a second
     // 9 = Clocks per byte : 8 bits + ACK
     */
-    i2c_byte_wait_us = ((float)cdiv / BCM2835_CORE_CLK_HZ) * 1000000 * 9;
+    //i2c_byte_wait_us = ((float)cdiv / BCM2835_CORE_CLK_HZ) * 1000000 * 9;
 }
 
 void bcm2835_i2c_end(void)
@@ -774,7 +774,7 @@ void bcm2835_i2c_setClockDivider(uint16_t divider)
     // 1000000 = micros seconds in a second
     // 9 = Clocks per byte : 8 bits + ACK
     */
-    i2c_byte_wait_us = ((float)divider / BCM2835_CORE_CLK_HZ) * 1000000 * 9;
+    //i2c_byte_wait_us = ((float)divider / BCM2835_CORE_CLK_HZ) * 1000000 * 9;
 }
 
 /* set I2C clock divider by means of a baudrate number */
