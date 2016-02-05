@@ -16,6 +16,8 @@
 #include <linux/string.h>
 #include <linux/time.h>
 #include <linux/printk.h>
+#include <linux/byteorder/generic.h>
+#include <linux/of.h>
 
 #define BCK2835_LIBRARY_BUILD
 #include "bcm2835.h"
@@ -50,6 +52,13 @@ volatile uint32_t *bcm2835_bsc0        = (uint32_t *)MAP_FAILED;
 volatile uint32_t *bcm2835_bsc1        = (uint32_t *)MAP_FAILED;
 volatile uint32_t *bcm2835_st	       = (uint32_t *)MAP_FAILED;
 
+/* SoC ranges from device tree
+ */
+struct dt_soc_ranges{
+	uint32_t p1;
+	uint32_t p2;
+	uint32_t p3;
+};
 
 /* This variable allows us to test on hardware other than RPi.
 // It prevents access to the kernel memory, and does not do any peripheral access
@@ -1256,7 +1265,7 @@ static void unmapmem(void **pmem, size_t size)
 int bcm2835_init(void)
 {
     int  ok;
-    FILE *fp;
+    struct device_node *dtnode;
 
     if (debug) 
     {
@@ -1276,17 +1285,23 @@ int bcm2835_init(void)
     /* Figure out the base and size of the peripheral address block
     // using the device-tree. Required for RPi2, optional for RPi 1
     */
-    if ((fp = fopen(BMC2835_RPI2_DT_FILENAME , "rb")))
-    {
-        unsigned char buf[4];
-	fseek(fp, BMC2835_RPI2_DT_PERI_BASE_ADDRESS_OFFSET, SEEK_SET);
-	if (fread(buf, 1, sizeof(buf), fp) == sizeof(buf))
-	  bcm2835_peripherals_base = (uint32_t *)(buf[0] << 24 | buf[1] << 16 | buf[2] << 8 | buf[3] << 0);
-	fseek(fp, BMC2835_RPI2_DT_PERI_SIZE_OFFSET, SEEK_SET);
-	if (fread(buf, 1, sizeof(buf), fp) == sizeof(buf))
-	  bcm2835_peripherals_size = (buf[0] << 24 | buf[1] << 16 | buf[2] << 8 | buf[3] << 0);
-	fclose(fp);
-    }
+	dtnode = of_find_node_by_path("/soc");
+	if (dtnode) {
+		const struct dt_soc_ranges* properties;
+		properties = of_get_property(dtnode, "ranges", NULL);
+		if (properties != NULL) {
+			printk(KERN_DEBUG "%s: Found device-tree node /soc.\r\n", __FUNCTION__);
+			printk(KERN_DEBUG "%s: /soc/ranges = 0x%08x 0x%08x 0x%08x.\r\n", __FUNCTION__, htonl(properties->p1), htonl(properties->p2), ntohl(properties->p3));
+			bcm2835_peripherals_base = (uint32_t *) htonl(properties->p2);
+			bcm2835_peripherals_size = htonl(properties->p3);
+			printk(KERN_NOTICE "%s: Using device-tree values.\r\n", __FUNCTION__);
+		} else {
+			printk(KERN_ERR "%s: /soc/ranges property was null.\r\n", __FUNCTION__);
+		}
+	} else {
+		printk(KERN_WARNING "%s: Failed to find device-tree node /soc.\r\n", __FUNCTION__);
+		printk(KERN_NOTICE "%s: Using hard-coded values for raspberry pi 1.\r\n", __FUNCTION__);
+	}
     /* else we are prob on RPi 1 with BCM2835, and use the hardwired defaults */
 
     /* Base of the peripherals block is mapped to VM */
