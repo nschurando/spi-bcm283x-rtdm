@@ -492,7 +492,10 @@ module_exit(bcm283x_spi_rtdm_exit);
 /*
  * Register module values
  */
-MODULE_VERSION("0.1");
+#ifndef GIT_VERSION
+#define GIT_VERSION 0.1-untracked
+#endif /* ! GIT_VERSION */
+MODULE_VERSION(GIT_VERSION);
 MODULE_DESCRIPTION("Real-Time SPI driver for the Broadcom BCM283x SoC familly using the RTDM API");
 MODULE_AUTHOR("Nicolas Schurando <schurann@ext.essilor.com>");
 MODULE_LICENSE("GPL v2");
